@@ -1,1 +1,241 @@
-{}
+{
+  "Model": {
+    "body": [
+      "import mongoose, { Schema } from 'mongoose';",
+
+      "export interface I${1:ModuleName} {",
+
+      "userId: number;",
+      "}",
+
+      "export interface I${1:ModuleName}Document extends I${1:ModuleName}, mongoose.Document {}",
+
+      "const ${1:ModuleName}Schema: Schema = new Schema(",
+      "{",
+
+      "userId: { type: Number, required: true }",
+      "},",
+      "{ timestamps: true }",
+      ");",
+      "const ${1:ModuleName}Model = mongoose.model<I${1:ModuleName}Document>('${1:ModuleName}', ${1:ModuleName}Schema);",
+
+      " export { ${1:ModuleName}Model };"
+    ],
+    "description": "Use For Create Model",
+    "prefix": "Model"
+  },
+  "Gateway": {
+    "body": [
+      "import { Router } from 'express';",
+      "import { ValidationMiddleware } from '../../../../core/infra/http/middleware/middleware';",
+      "import { IRouteBase } from '../../../../core/providers/interfaces/route-base.interface';",
+
+      "export class ${1:ModuleName}Gateway implements IRouteBase {",
+      "router: Router;",
+      "constructor(router: Router) {",
+      "this.router = router;",
+      "this.initRoutes();",
+      "}",
+
+      " public initRoutes() {",
+      "this.router.get('/', (req, res) => ${1:ModuleName}Controller.CaseRead.execute(req, res));",
+      "this.router.get('/:id', (req, res) => ${1:ModuleName}Controller.CaseFind.execute(req, res));",
+      "this.router.post('/', ValidationMiddleware(${1:ModuleName}Request.create), (req, res) => ${1:ModuleName}Controller.CaseCreate.execute(req, res));",
+      "this.router.put('/:id', ValidationMiddleware(${1:ModuleName}Request.update), (req, res) => ${1:ModuleName}Controller.CaseUpdate.execute(req, res));",
+      "this.router.delete('/:id', (req, res) => ${1:ModuleName}Controller.CaseDelete.execute(req, res));",
+      "}",
+      "}"
+    ],
+    "description": "Use For Create Gateway",
+    "prefix": "Gateway"
+  },
+
+  "Controller": {
+    "body": [
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+
+      "import { BaseController } from '../../../../../core/providers/class/BaseController';",
+      "import { I${1:ModuleName} } from '../../Model/${1:ModuleName}.model';",
+      "import { ${1:ModuleName} } from '../../Services';",
+
+      "class CaseRead extends BaseController {",
+      "constructor() {",
+      "super();",
+      " }",
+
+      "async executeImpl(): Promise<any> {",
+      "try {",
+      "const result = await ${1:ModuleName}.all();",
+      "return this.ok(this.res, result);",
+      "} catch (err: any) {",
+      " return this.fail(err);",
+      "}",
+      "}",
+      "}",
+
+      "class CaseFind extends BaseController {",
+      "constructor() {",
+      "super();",
+      " }",
+
+      " async executeImpl(): Promise<any> {",
+      " try {",
+      "const result = await ${1:ModuleName}.find(this.req.params.id);",
+      "if (!result) {",
+      " return this.ok(this.res, 'Constituent not found');",
+      " }",
+      "return this.ok(this.res, result);",
+      "} catch (err: any) {",
+      "return this.fail(err);",
+      " }",
+      " }",
+      " }",
+
+      "class CaseCreate extends BaseController {",
+      "constructor() {",
+      "super();",
+      " }",
+
+      " async executeImpl(): Promise<any> {",
+      "const dto: I${1:ModuleName} = this.req.body as I${1:ModuleName};",
+
+      "try {",
+      "const result = await ${1:ModuleName}.create(dto);",
+      "return this.res.status(201).json(result);",
+      "} catch (err: any) {",
+      "return this.fail(err);",
+      "}",
+      "}",
+      "}",
+
+      "class CaseUpdate extends BaseController {",
+      "constructor() {",
+      " super();",
+      "}",
+
+      "async executeImpl(): Promise<any> {",
+      "const dto: I${1:ModuleName} = this.req.body as I${1:ModuleName};",
+
+      "try {",
+      "const result = await ${1:ModuleName}.update(this.req.params.id, dto);",
+      "return this.res.status(200).json(result);",
+      "} catch (err: any) {",
+      " return this.fail(err);",
+      " }",
+      " }",
+      " }",
+
+      "class CaseDelete extends BaseController {",
+      "constructor() {",
+      "super();",
+      " }",
+
+      " async executeImpl(): Promise<any> {",
+      "try {",
+      "const result = await ${1:ModuleName}.delete(this.req.params.id);",
+      "return this.ok(this.res, result);",
+      "} catch (err: any) {",
+      "return this.fail(err);",
+      " }",
+      "}",
+      " }",
+
+      "const ${1:ModuleName}Controller: {",
+      "CaseRead: CaseRead;",
+      "CaseFind: CaseFind;",
+      "CaseCreate: CaseCreate;",
+      "CaseUpdate: CaseUpdate;",
+      "CaseDelete: CaseDelete;",
+      "} = {",
+      "CaseRead: new CaseRead(),",
+      "CaseFind: new CaseFind(),",
+      "CaseCreate: new CaseCreate(),",
+      "CaseUpdate: new CaseUpdate(),",
+      "CaseDelete: new CaseDelete()",
+      "};",
+
+      "export default ${1:ModuleName}Controller;"
+    ],
+    "description": "Use For Create Controller",
+    "prefix": "Controller"
+  },
+  "Validation": {
+    "body": [
+      "import Joi from 'joi';",
+      "import { I${1:ModuleName} } from '../../Model/${1:ModuleName}.model';",
+
+      "export const ${1:ModuleName}Request = {",
+      "create: Joi.object<I${1:ModuleName}>({",
+
+      "}),",
+      "update: Joi.object<I${1:ModuleName}>({",
+
+      " })",
+      " };"
+    ],
+    "description": "Use For Create Validation",
+    "prefix": "Validation"
+  },
+  "Services": {
+    "body": [
+      "import { logger } from '../../../../core/providers/library/console.logger';",
+      "import { ${1:ModuleName}Model, I${1:ModuleName}, I${1:ModuleName}Document } from '../Model/${1:ModuleName}.model';",
+
+      "export class ${1:ModuleName}Service {",
+      "constructor(private model: typeof ${1:ModuleName}Model) {}",
+
+      "async all(): Promise<I${1:ModuleName}Document[]> {",
+      " return await this.model.find();",
+      "}",
+
+      " async create(data: I${1:ModuleName}): Promise<string> {",
+      "   try {",
+      "  await this.model.create({",
+
+      "    userId: data.userId",
+      " });",
+      "  return 'Record created successfully';",
+      "  } catch (err) {",
+      "  logger.error('${1:ModuleName} Create Error', err);",
+      "  return JSON.stringify(err);",
+      "   }",
+      "  }",
+
+      "async update(id: string | number, data: I${1:ModuleName}): Promise<string> {",
+      "try {",
+      "await this.model.findByIdAndUpdate(id, data, { new: true });",
+      " return 'Record updated successfully';",
+      "} catch (err) {",
+      " logger.error('${1:ModuleName} Create Error', err);",
+      "  return JSON.stringify(err);",
+      "  }",
+      "    }",
+
+      "async find(id: string | number): Promise<I${1:ModuleName}Document | null> {",
+      "return await this.model.findById(id);",
+      "}",
+
+      " async delete(id: string | number): Promise<string> {",
+      "try {",
+      "await this.model.findByIdAndDelete(id);",
+      "return 'Record deleted successfully';",
+      "} catch (error) {",
+      "logger.error('${1:ModuleName} Delete Error', error);",
+      "return JSON.stringify(error);",
+      "}",
+      "}",
+      "}"
+    ],
+    "description": "Use For Create Services",
+    "prefix": "Services"
+  },
+  "Index": {
+    "body": [
+      "import { ${1:ModuleName}Model } from '../Model/${1:ModuleName}.model';",
+
+      "export const ${1:ModuleName} = new ${1:ModuleName}Service(${1:ModuleName}Model);"
+    ],
+    "description": "Use For Create Index",
+    "prefix": "Index"
+  }
+}
